@@ -17,7 +17,7 @@ Transposing multiple variables by groups with unique ids within group. Keywords:
                   Would be simpler but 'proc report' does not honor 'ods output'
             3. Art's sort-transpose-macro
                Arthur Tabachneck <art@analystfinder.com>
-            4. Gather-sort-transpose
+            4. Gather-sort-transpose - flexible and fast
                (gather output provides a very powerfull 'normalized' output data structure)
                It has the ability to store numeric and characater data in one column and adds
                the meta data you need to recreate the original char and num variables.
