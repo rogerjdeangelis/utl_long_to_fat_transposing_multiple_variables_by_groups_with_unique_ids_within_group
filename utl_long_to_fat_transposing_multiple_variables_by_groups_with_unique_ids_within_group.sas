@@ -9,19 +9,21 @@ proc transpose requires you to sort and do n transpose one per variable and then
         2. One proc report and a simple rename macro
               I think this is the most powerfull because you can add summary statistics.
               Would be simpler but 'proc report' does not honor 'ods output'
-        3. Gather-sort-transpose
+        3. Art's sort-transpose-macro - very flexible and the fastest
+           Arthur Tabachneck <art@analystfinder.com>
+        4. Gather-sort-transpose
            (gather output provides a very powerfull 'normalized' output data structure)
            It has the ability to store numeric and characater data in one column and adds
            the meta data you need to recreate the original char and num variables.
            (Like Oracle Clinical Center fact table)
            (Alea Iacta https://github.com/clindocu)
-        4. Gather-fix-sort=transpose
+        5. Gather-fix-sort=transpose
            I added this because operating on the output of gather has many applications
-        5. Gather-report
-        6. proc summary idgroup - close but does not solve the problem
+        6. Gather-report
+        7. proc summary idgroup - close but does not solve the problem
            provides an interesting data structure
            Like report suppots many additional summary functions. Multithreaded
-        7. Sort-sql-merge Søren Lassen 000002b7c5cf1459-dmarc-request@listserv.uga.edu
+        8. Sort-sql-merge Søren Lassen 000002b7c5cf1459-dmarc-request@listserv.uga.edu
 
   HAVE
   ====
@@ -244,6 +246,89 @@ _CHAR_VALUE_4567     N8       .
 _CHAR_VALUE_5555     N8       .
 _CHAR_VALUE_6666     N8       0
 _CHAR_VALUE_7890     N8       96
+
+*           _   _       _
+  __ _ _ __| |_( )___  | |_ _ __ __ _ _ __  ___ _ __   ___  ___  ___
+ / _` | '__| __|// __| | __| '__/ _` | '_ \/ __| '_ \ / _ \/ __|/ _ \
+| (_| | |  | |_  \__ \ | |_| | | (_| | | | \__ \ |_) | (_) \__ \  __/
+ \__,_|_|   \__| |___/  \__|_|  \__,_|_| |_|___/ .__/ \___/|___/\___|
+                                               |_|
+;
+
+see
+http://www.sascommunity.org/wiki/A_Better_Way_to_Flip_(Transpose)_a_SAS_Dataset
+
+INPUT
+=====
+
+data have;
+retain cnt;
+input customer_id account_id char_number char_value   char_points;
+cards4;
+1111111111 8888888888 1234 14 102
+1111111111 8888888888 4567 . 96
+1111111111 8888888888 7890 0 96
+1111111111 8888888888 1000 47 98
+1111111111 8888888888 1001 42 110
+1111111111 8888888888 1002 0 134
+2222222222 9999999999 5555 0 91
+2222222222 9999999999 6666 102 92
+2222222222 9999999999 1234 33 95
+2222222222 9999999999 4567 0 91
+2222222222 9999999999 7890 0 98
+2222222222 9999999999 1001 7 92
+2222222222 9999999999 1000 41 92
+2222222222 4444444444 3333 42 .
+2222222222 4444444444 1234 0 134
+;;;;
+run;quit;
+
+
+PROCESS
+=======
+
+/*Sorting prior to transposing */
+proc sort data=have;
+  by customer_ID ACCOUNT_ID;
+run;
+
+* utl_transpose call to match the proc summary approach would be:;
+
+%utl_transpose(data=have, out=want1, by=customer_id account_id,
+  id=char_number, var=char_value char_points)
+
+
+* utl_transpose call to match the other approaches would be:;
+
+%utl_transpose(data=sorted_table, out=want2, by=customer_ID ACCOUNT_ID,
+       id=char_number, var=char_VALUE char_points)
+
+OUTPUT
+======
+
+Middle Observation(1 ) of want1 - Total Obs 3
+
+ -- NUMERIC --
+CUSTOMER_ID          N8       1111111111
+ACCOUNT_ID           N8       8888888888
+CHAR_VALUE1000       N8       47
+CHAR_POINTS1000      N8       98
+CHAR_VALUE1001       N8       42
+CHAR_POINTS1001      N8       110
+CHAR_VALUE1002       N8       0
+CHAR_POINTS1002      N8       134
+CHAR_VALUE1234       N8       14
+CHAR_POINTS1234      N8       102
+CHAR_VALUE3333       N8       .
+CHAR_POINTS3333      N8       .
+CHAR_VALUE4567       N8       .
+CHAR_POINTS4567      N8       96
+CHAR_VALUE5555       N8       .
+CHAR_POINTS5555      N8       .
+CHAR_VALUE6666       N8       .
+CHAR_POINTS6666      N8       .
+CHAR_VALUE7890       N8       0
+CHAR_POINTS7890      N8       96
 
 
 *            _   _                 _
