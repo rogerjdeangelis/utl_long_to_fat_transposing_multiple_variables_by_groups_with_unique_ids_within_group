@@ -15,7 +15,7 @@ Transposing multiple variables by groups with unique ids within group. Keywords:
             2. One proc report and a simple rename macro
                   I think this is the most powerfull because you can add summary statistics.
                   Would be simpler but 'proc report' does not honor 'ods output'
-            3. Art's sort-transpose-macro
+            3. Art's sort-transpose-macro - very flexible and the fastest
                Arthur Tabachneck <art@analystfinder.com>
             4. Gather-sort-transpose - flexible and fast
                (gather output provides a very powerfull 'normalized' output data structure)
